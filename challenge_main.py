@@ -28,6 +28,10 @@ class Triangle(Node):
     def __str__(self):
         return str(self.x1) + str(self.y1) + str(self.x2) + str(self.y2) + str(self.x3) + str(self.y3)
 
+    def collide_bv(self, bv):
+        self_bv = BV.create_bv(self, self)
+        return BV.collide(self_bv, bv)
+
 
 class BV:
     # 8-DOPS
@@ -101,6 +105,28 @@ class BV:
                       Dmin=min(left_child.Dmin, right_child.Dmin),
                       Dmax=max(left_child.Dmax, right_child.Dmax))
 
+    @staticmethod
+    def overlap_interval(first_min, first_max, second_min, second_max):
+        if second_min <= first_min <= second_max:
+            return True
+        if second_min <= first_max <= second_max:
+            return True
+        if second_min <= first_min and second_max >= first_max:
+            return True
+        if second_min >= first_min and second_max <= first_max:
+            return True
+        return False
+
+    @staticmethod
+    def collide(first_bv, second_bv):
+        if BV.overlap_interval(first_bv.Amin, first_bv.Amax, second_bv.Amin, second_bv.Amax) and \
+                BV.overlap_interval(first_bv.Bmin, first_bv.Bmax, second_bv.Bmin, second_bv.Bmax) and \
+                BV.overlap_interval(first_bv.Cmin, first_bv.Cmax, second_bv.Cmin, second_bv.Cmax) and \
+                BV.overlap_interval(first_bv.Dmin, first_bv.Dmax, second_bv.Dmin, second_bv.Dmax):
+            return True
+        else:
+            return False
+
 
 def get_root_node(triangles):
     result_tris = []
@@ -150,9 +176,68 @@ def sort_triangles(triangles):
     merge_sort(triangles)
 
 
+def line_intersect2(v1, v2, v3, v4):
+    d = (v4[1] - v3[1]) * (v2[0] - v1[0]) - (v4[0] - v3[0]) * (v2[1] - v1[1])
+    u = (v4[0] - v3[0]) * (v1[1] - v3[1]) - (v4[1] - v3[1]) * (v1[0] - v3[0])
+    v = (v2[0] - v1[0]) * (v1[1] - v3[1]) - (v2[1] - v1[1]) * (v1[0] - v3[0])
+    if d < 0:
+        u, v, d = -u, -v, -d
+    return (0 <= u <= d) and (0 <= v <= d)
+
+
+def point_in_triangle2(A, B, C, P):
+    v0 = [C[0] - A[0], C[1] - A[1]]
+    v1 = [B[0] - A[0], B[1] - A[1]]
+    v2 = [P[0] - A[0], P[1] - A[1]]
+    cross = lambda u, v: u[0] * v[1] - u[1] * v[0]
+    u = cross(v2, v0)
+    v = cross(v1, v2)
+    d = cross(v1, v0)
+    if d < 0:
+        u, v, d = -u, -v, -d
+    return u >= 0 and v >= 0 and (u + v) <= d
+
+
+def tri_intersect2(t1, t2):
+    if line_intersect2(t1[0], t1[1], t2[0], t2[1]): return True
+    if line_intersect2(t1[0], t1[1], t2[0], t2[2]): return True
+    if line_intersect2(t1[0], t1[1], t2[1], t2[2]): return True
+    if line_intersect2(t1[0], t1[2], t2[0], t2[1]): return True
+    if line_intersect2(t1[0], t1[2], t2[0], t2[2]): return True
+    if line_intersect2(t1[0], t1[2], t2[1], t2[2]): return True
+    if line_intersect2(t1[1], t1[2], t2[0], t2[1]): return True
+    if line_intersect2(t1[1], t1[2], t2[0], t2[2]): return True
+    if line_intersect2(t1[1], t1[2], t2[1], t2[2]): return True
+    inTri = True
+    inTri = inTri and point_in_triangle2(t1[0], t1[1], t1[2], t2[0])
+    inTri = inTri and point_in_triangle2(t1[0], t1[1], t1[2], t2[1])
+    inTri = inTri and point_in_triangle2(t1[0], t1[1], t1[2], t2[2])
+    if inTri == True: return True
+    inTri = True
+    inTri = inTri and point_in_triangle2(t2[0], t2[1], t2[2], t1[0])
+    inTri = inTri and point_in_triangle2(t2[0], t2[1], t2[2], t1[1])
+    inTri = inTri and point_in_triangle2(t2[0], t2[1], t2[2], t1[2])
+    if inTri == True: return True
+    return False
+
+
 def collide(first_node, second_node):
     if isinstance(first_node, Triangle) and isinstance(second_node, Triangle):
-        pass
+        return tri_intersect2(
+            [[first_node.x1, first_node.y1], [first_node.x2, first_node.y2], [first_node.x3, first_node.y3]],
+            [[second_node.x1, second_node.y1], [second_node.x2, second_node.y2], [second_node.x3, second_node.y3]])
+    elif isinstance(first_node, Triangle) or isinstance(second_node, Triangle):
+        tri = None
+        bv = None
+        if isinstance(first_node, Triangle):
+            tri = first_node
+            bv = second_node
+        else:
+            tri = second_node
+            bv = first_node
+        return tri.collide_bv(bv)
+    else:
+        return BV.collide(first_node, second_node)
 
 
 if __name__ == '__main__':
@@ -177,3 +262,4 @@ if __name__ == '__main__':
     sort_triangles(second_triangles)
     first_root = get_root_node(first_triangles)
     second_root = get_root_node(second_triangles)
+    # trees ready
