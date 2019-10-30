@@ -262,4 +262,4 @@ if __name__ == '__main__':
     sort_triangles(second_triangles)
     first_root = get_root_node(first_triangles)
     second_root = get_root_node(second_triangles)
-    # trees ready
+    # todo test collide function
