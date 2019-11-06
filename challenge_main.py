@@ -248,21 +248,21 @@ def check_collision(first_root, second_root):
     if collide(first_root, second_root):
         if isinstance(first_root, Triangle):
             if isinstance(second_root, Triangle):
-                return collide(first_root, second_root)
+                return True
             else:
                 if check_collision(first_root, second_root.left):
-                    # print(first_root.__str__(), " ", second_root.__str__())
+                    print(first_root.__str__(), " ", second_root.left.__str__())
                     return True
                 if check_collision(first_root, second_root.right):
-                    # print(first_root.__str__(), " ", second_root.__str__())
+                    print(first_root.__str__(), " ", second_root.right.__str__())
                     return True
                 return False
         else:
             if check_collision(first_root.left, second_root):
-                # print(first_root.left.__str__(), " ", second_root.__str__())
+                print(first_root.left.__str__(), " ", second_root.__str__())
                 return True
             if check_collision(first_root.right, second_root):
-                # print(first_root.right.__str__(), " ", second_root.__str__())
+                print(first_root.right.__str__(), " ", second_root.__str__())
                 return True
             return False
     else:
