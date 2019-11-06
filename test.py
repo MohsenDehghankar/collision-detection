@@ -1,7 +1,4 @@
 def line_intersect2(v1, v2, v3, v4):
-    '''
-    judge if line (v1,v2) intersects with line(v3,v4)
-    '''
     d = (v4[1] - v3[1]) * (v2[0] - v1[0]) - (v4[0] - v3[0]) * (v2[1] - v1[1])
     u = (v4[0] - v3[0]) * (v1[1] - v3[1]) - (v4[1] - v3[1]) * (v1[0] - v3[0])
     v = (v2[0] - v1[0]) * (v1[1] - v3[1]) - (v2[1] - v1[1]) * (v1[0] - v3[0])
@@ -24,9 +21,6 @@ def point_in_triangle2(A, B, C, P):
 
 
 def tri_intersect2(t1, t2):
-    '''
-    judge if two triangles in a plane intersect 
-    '''
     if line_intersect2(t1[0], t1[1], t2[0], t2[1]): return True
     if line_intersect2(t1[0], t1[1], t2[0], t2[2]): return True
     if line_intersect2(t1[0], t1[1], t2[1], t2[2]): return True
@@ -50,6 +44,6 @@ def tri_intersect2(t1, t2):
 
 
 if __name__ == '__main__':
-    t1 = [[4, 4], [6, 6], [6, 1]]
-    t2 = [[1, 2], [2, 1], [3, 3]]
+    t1 = [[1, 1], [2, 1], [2, 2]]
+    t2 = [[3, 1], [1, 3], [3, 3]]
     print(tri_intersect2(t1, t2))
