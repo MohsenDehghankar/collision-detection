@@ -5,7 +5,7 @@ class Node:
         self.bv = bv
 
     def __str__(self):
-        return self.left.bv.__str__() + " " + self.right.bv.__str__()
+        return self.bv.__str__()
 
 
 class Triangle(Node):
@@ -26,7 +26,8 @@ class Triangle(Node):
         self.centroidY = (self.y1 + self.y2 + self.y3) / 3
 
     def __str__(self):
-        return str(self.x1) + str(self.y1) + str(self.x2) + str(self.y2) + str(self.x3) + str(self.y3)
+        return str(self.x1) + " " + str(self.y1) + " " + str(self.x2) + " " + str(self.y2) + " " + str(
+            self.x3) + " " + str(self.y3)
 
     def collide_bv(self, bv):
         self_bv = BV.create_bv(self, self)
@@ -46,8 +47,9 @@ class BV:
         self.Dmax = Dmax
 
     def __str__(self):
-        return str(self.Amax) + str(self.Amin) + str(self.Bmax) + str(self.Bmin) + str(self.Cmax) + str(
-            self.Cmin) + str(self.Dmax) + str(self.Dmin)
+        return str(self.Amax) + " " + str(self.Amin) + " " + str(self.Bmax) + " " + str(self.Bmin) + " " + str(
+            self.Cmax) + " " + str(
+            self.Cmin) + " " + str(self.Dmax) + " " + str(self.Dmin)
 
     @staticmethod
     def create_bv(left_child, right_child):
@@ -111,9 +113,9 @@ class BV:
             return True
         if second_min <= first_max <= second_max:
             return True
-        if second_min <= first_min and second_max >= first_max:
+        if first_min <= second_max <= first_max:
             return True
-        if second_min >= first_min and second_max <= first_max:
+        if first_min <= second_min <= first_max:
             return True
         return False
 
@@ -182,7 +184,7 @@ def line_intersect2(v1, v2, v3, v4):
     v = (v2[0] - v1[0]) * (v1[1] - v3[1]) - (v2[1] - v1[1]) * (v1[0] - v3[0])
     if d < 0:
         u, v, d = -u, -v, -d
-    return (0 <= u <= d) and (0 <= v <= d)
+    return (0 < u < d) and (0 < v < d)
 
 
 def point_in_triangle2(A, B, C, P):
@@ -235,9 +237,36 @@ def collide(first_node, second_node):
         else:
             tri = second_node
             bv = first_node
-        return tri.collide_bv(bv)
+        return tri.collide_bv(bv.bv)
     else:
-        return BV.collide(first_node, second_node)
+        return BV.collide(first_node.bv, second_node.bv)
+
+
+def check_collision(first_root, second_root):
+    if not first_root or not second_root:
+        return False
+    if collide(first_root, second_root):
+        if isinstance(first_root, Triangle):
+            if isinstance(second_root, Triangle):
+                return collide(first_root, second_root)
+            else:
+                if check_collision(first_root, second_root.left):
+                    # print(first_root.__str__(), " ", second_root.__str__())
+                    return True
+                if check_collision(first_root, second_root.right):
+                    # print(first_root.__str__(), " ", second_root.__str__())
+                    return True
+                return False
+        else:
+            if check_collision(first_root.left, second_root):
+                # print(first_root.left.__str__(), " ", second_root.__str__())
+                return True
+            if check_collision(first_root.right, second_root):
+                # print(first_root.right.__str__(), " ", second_root.__str__())
+                return True
+            return False
+    else:
+        return False
 
 
 if __name__ == '__main__':
@@ -263,3 +292,8 @@ if __name__ == '__main__':
     first_root = get_root_node(first_triangles)
     second_root = get_root_node(second_triangles)
     # todo test collide function
+    #
+    if check_collision(first_root, second_root):
+        print(1)
+    else:
+        print(0)
