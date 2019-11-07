@@ -251,18 +251,18 @@ def check_collision(first_root, second_root):
                 return True
             else:
                 if check_collision(first_root, second_root.left):
-                    print(first_root.__str__(), " ", second_root.left.__str__())
+                    # print(first_root.__str__(), " ", second_root.left.__str__())
                     return True
                 if check_collision(first_root, second_root.right):
-                    print(first_root.__str__(), " ", second_root.right.__str__())
+                    # print(first_root.__str__(), " ", second_root.right.__str__())
                     return True
                 return False
         else:
             if check_collision(first_root.left, second_root):
-                print(first_root.left.__str__(), " ", second_root.__str__())
+                # print(first_root.left.__str__(), " ", second_root.__str__())
                 return True
             if check_collision(first_root.right, second_root):
-                print(first_root.right.__str__(), " ", second_root.__str__())
+                # print(first_root.right.__str__(), " ", second_root.__str__())
                 return True
             return False
     else:
@@ -270,30 +270,31 @@ def check_collision(first_root, second_root):
 
 
 if __name__ == '__main__':
-    first_triangles = []
-    second_triangles = []
-    string = ""
-    while True:
-        string = input()
-        if string == "end1":
-            break
-        split = string.split()
-        triangle = Triangle(int(split[0]), int(split[1]), int(split[2]), int(split[3]), int(split[4]), int(split[5]))
-        first_triangles.append(triangle)
-    while True:
-        string = input()
-        if string == "end2":
-            break
-        split = string.split()
-        triangle = Triangle(int(split[0]), int(split[1]), int(split[2]), int(split[3]), int(split[4]), int(split[5]))
-        second_triangles.append(triangle)
-    sort_triangles(first_triangles)
-    sort_triangles(second_triangles)
-    first_root = get_root_node(first_triangles)
-    second_root = get_root_node(second_triangles)
-    # todo test collide function
-    #
-    if check_collision(first_root, second_root):
-        print(1)
-    else:
-        print(0)
+    for i in range(30):
+        first_triangles = []
+        second_triangles = []
+        string = ""
+        while True:
+            string = input()
+            if string == "end1":
+                break
+            split = string.split()
+            triangle = Triangle(int(split[0]), int(split[1]), int(split[2]), int(split[3]), int(split[4]),
+                                int(split[5]))
+            first_triangles.append(triangle)
+        while True:
+            string = input()
+            if string == "end2":
+                break
+            split = string.split()
+            triangle = Triangle(int(split[0]), int(split[1]), int(split[2]), int(split[3]), int(split[4]),
+                                int(split[5]))
+            second_triangles.append(triangle)
+        sort_triangles(first_triangles)
+        sort_triangles(second_triangles)
+        first_root = get_root_node(first_triangles)
+        second_root = get_root_node(second_triangles)
+        if check_collision(first_root, second_root):
+            print(1)
+        else:
+            print(0)
