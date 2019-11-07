@@ -18,12 +18,11 @@ class Triangle(Node):
         self.y3 = y3
         self.x3 = x3
         self.centroidX = 0
-        self.centroidY = 0
+        # self.centroidY = 0
         self.compute_centroid()
 
     def compute_centroid(self):
         self.centroidX = (self.x1 + self.x2 + self.x3) / 3
-        self.centroidY = (self.y1 + self.y2 + self.y3) / 3
 
     def __str__(self):
         return str(self.x1) + " " + str(self.y1) + " " + str(self.x2) + " " + str(self.y2) + " " + str(
@@ -148,29 +147,30 @@ def get_root_node(triangles):
 
 
 def merge_sort(arr):
-    if len(arr) > 1:
-        mid = len(arr) // 2
-        L = arr[:mid]
-        R = arr[mid:]
-        merge_sort(L)
-        merge_sort(R)
-        i = j = k = 0
-        while i < len(L) and j < len(R):
-            if L[i].centroidX < R[j].centroidX:
-                arr[k] = L[i]
-                i += 1
-            else:
-                arr[k] = R[j]
-                j += 1
-            k += 1
-        while i < len(L):
-            arr[k] = L[i]
-            i += 1
-            k += 1
-        while j < len(R):
-            arr[k] = R[j]
-            j += 1
-            k += 1
+    # if len(arr) > 1:
+    #     mid = len(arr) // 2
+    #     L = arr[:mid]
+    #     R = arr[mid:]
+    #     merge_sort(L)
+    #     merge_sort(R)
+    #     i = j = k = 0
+    #     while i < len(L) and j < len(R):
+    #         if L[i].centroidX < R[j].centroidX:
+    #             arr[k] = L[i]
+    #             i += 1
+    #         else:
+    #             arr[k] = R[j]
+    #             j += 1
+    #         k += 1
+    #     while i < len(L):
+    #         arr[k] = L[i]
+    #         i += 1
+    #         k += 1
+    #     while j < len(R):
+    #         arr[k] = R[j]
+    #         j += 1
+    #         k += 1
+    pass
 
 
 def sort_triangles(triangles):
@@ -251,18 +251,14 @@ def check_collision(first_root, second_root):
                 return True
             else:
                 if check_collision(first_root, second_root.left):
-                    # print(first_root.__str__(), " ", second_root.left.__str__())
                     return True
                 if check_collision(first_root, second_root.right):
-                    # print(first_root.__str__(), " ", second_root.right.__str__())
                     return True
                 return False
         else:
             if check_collision(first_root.left, second_root):
-                # print(first_root.left.__str__(), " ", second_root.__str__())
                 return True
             if check_collision(first_root.right, second_root):
-                # print(first_root.right.__str__(), " ", second_root.__str__())
                 return True
             return False
     else:
