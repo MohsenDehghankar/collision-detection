@@ -18,7 +18,6 @@ class Triangle(Node):
         self.y3 = y3
         self.x3 = x3
         self.centroidX = 0
-        # self.centroidY = 0
         self.compute_centroid()
 
     def compute_centroid(self):
