@@ -68,28 +68,14 @@ class BV:
                        (right_child.y1 + right_child.x1), (right_child.y2 + right_child.x2),
                        (right_child.y3 + right_child.x3))
             return BV(Amin, Amax, Bmin, Bmax, Cmin, Cmax, Dmin, Dmax)
-        elif isinstance(left_child, Triangle) or isinstance(right_child, Triangle):
-            tri = None
-            bv = None
-            if isinstance(left_child, Triangle):
-                tri = left_child
-                bv = right_child
-            else:
-                tri = right_child
-                bv = left_child
-            Amax = max(tri.y1, tri.y2, tri.y3, bv.Amax)
-            Amin = min(tri.y1, tri.y2, tri.y3, bv.Amin)
-            Bmax = max(tri.x1, tri.x2, tri.x3, bv.Bmax)
-            Bmin = min(tri.x1, tri.x2, tri.x3, bv.Bmin)
-            Cmax = max((tri.y1 - tri.x1), (tri.y2 - tri.x2),
-                       (tri.y3 - tri.x3), bv.Cmax)
-            Cmin = min((tri.y1 - tri.x1), (tri.y2 - tri.x2),
-                       (tri.y3 - tri.x3), bv.Cmin)
-            Dmax = max((tri.y1 + tri.x1), (tri.y2 + tri.x2),
-                       (tri.y3 + tri.x3), bv.Dmax)
-            Dmin = min((tri.y1 + tri.x1), (tri.y2 + tri.x2),
-                       (tri.y3 + tri.x3), bv.Dmin)
-            return BV(Amin, Amax, Bmin, Bmax, Cmin, Cmax, Dmin, Dmax)
+        elif isinstance(left_child, Triangle):
+            tri = left_child
+            bv = right_child
+            return BV.create_bv_tri_bv(tri, bv)
+        elif isinstance(right_child, Triangle):
+            tri = right_child
+            bv = left_child
+            return BV.create_bv_tri_bv(tri, bv)
         else:
             return BV(Amax=max(left_child.Amax, right_child.Amax),
                       Amin=min(left_child.Amin, right_child.Amin),
@@ -99,6 +85,22 @@ class BV:
                       Cmin=min(left_child.Cmin, right_child.Cmin),
                       Dmin=min(left_child.Dmin, right_child.Dmin),
                       Dmax=max(left_child.Dmax, right_child.Dmax))
+
+    @staticmethod
+    def create_bv_tri_bv(tri, bv):
+        Amax = max(tri.y1, tri.y2, tri.y3, bv.Amax)
+        Amin = min(tri.y1, tri.y2, tri.y3, bv.Amin)
+        Bmax = max(tri.x1, tri.x2, tri.x3, bv.Bmax)
+        Bmin = min(tri.x1, tri.x2, tri.x3, bv.Bmin)
+        Cmax = max((tri.y1 - tri.x1), (tri.y2 - tri.x2),
+                   (tri.y3 - tri.x3), bv.Cmax)
+        Cmin = min((tri.y1 - tri.x1), (tri.y2 - tri.x2),
+                   (tri.y3 - tri.x3), bv.Cmin)
+        Dmax = max((tri.y1 + tri.x1), (tri.y2 + tri.x2),
+                   (tri.y3 + tri.x3), bv.Dmax)
+        Dmin = min((tri.y1 + tri.x1), (tri.y2 + tri.x2),
+                   (tri.y3 + tri.x3), bv.Dmin)
+        return BV(Amin, Amax, Bmin, Bmax, Cmin, Cmax, Dmin, Dmax)
 
     @staticmethod
     def overlap_interval(first_min, first_max, second_min, second_max):
@@ -138,38 +140,6 @@ def get_root_node(triangles):
         bv = BV.create_bv(result_tris[-1].bv, triangles[-1].bv)
         result_tris[-1] = Node(result_tris[-1], triangles[-1], bv)
     return get_root_node(result_tris)
-
-
-def merge_sort(arr):
-    # if len(arr) > 1:
-    #     mid = len(arr) // 2
-    #     L = arr[:mid]
-    #     R = arr[mid:]
-    #     merge_sort(L)
-    #     merge_sort(R)
-    #     i = j = k = 0
-    #     while i < len(L) and j < len(R):
-    #         if L[i].centroidX < R[j].centroidX:
-    #             arr[k] = L[i]
-    #             i += 1
-    #         else:
-    #             arr[k] = R[j]
-    #             j += 1
-    #         k += 1
-    #     while i < len(L):
-    #         arr[k] = L[i]
-    #         i += 1
-    #         k += 1
-    #     while j < len(R):
-    #         arr[k] = R[j]
-    #         j += 1
-    #         k += 1
-    pass
-
-
-def sort_triangles(triangles):
-    # just on X axis
-    merge_sort(triangles)
 
 
 def line_intersect2(v1, v2, v3, v4):
@@ -222,16 +192,12 @@ def collide(first_node, second_node):
         return tri_intersect2(
             [[first_node.x1, first_node.y1], [first_node.x2, first_node.y2], [first_node.x3, first_node.y3]],
             [[second_node.x1, second_node.y1], [second_node.x2, second_node.y2], [second_node.x3, second_node.y3]])
-    elif isinstance(first_node, Triangle) or isinstance(second_node, Triangle):
-        tri = None
-        bv = None
-        if isinstance(first_node, Triangle):
-            tri = first_node
-            bv = second_node
-        else:
-            tri = second_node
-            bv = first_node
+    elif isinstance(first_node, Triangle):
+        tri = first_node
+        bv = second_node
         return tri.collide_bv(bv.bv)
+    elif isinstance(second_node, Triangle):
+        return second_node.collide_bv(first_node.bv)
     else:
         return BV.collide(first_node.bv, second_node.bv)
 
@@ -259,6 +225,12 @@ def check_collision(first_root, second_root):
         return False
 
 
+def input_triangle(string):
+    s = string.split()
+    return Triangle(int(s[0]), int(s[1]), int(s[2]), int(s[3]), int(s[4]),
+                    int(s[5]))
+
+
 if __name__ == '__main__':
     for i in range(30):
         first_triangles = []
@@ -268,20 +240,12 @@ if __name__ == '__main__':
             string = input()
             if string == "end1":
                 break
-            split = string.split()
-            triangle = Triangle(int(split[0]), int(split[1]), int(split[2]), int(split[3]), int(split[4]),
-                                int(split[5]))
-            first_triangles.append(triangle)
+            first_triangles.append(input_triangle(string))
         while True:
             string = input()
             if string == "end2":
                 break
-            split = string.split()
-            triangle = Triangle(int(split[0]), int(split[1]), int(split[2]), int(split[3]), int(split[4]),
-                                int(split[5]))
-            second_triangles.append(triangle)
-        sort_triangles(first_triangles)
-        sort_triangles(second_triangles)
+            second_triangles.append(input_triangle(string))
         first_root = get_root_node(first_triangles)
         second_root = get_root_node(second_triangles)
         if check_collision(first_root, second_root):
