@@ -45,28 +45,32 @@ class BV:
             self.Cmin) + " " + str(self.Dmax) + " " + str(self.Dmin)
 
     @staticmethod
+    def get_max_min(a_list):
+        min = a_list[0]
+        max = a_list[0]
+        a_list = a_list[1:]
+        for element in a_list:
+            if element > max:
+                max = element
+            if element < min:
+                min = element
+        return min, max
+
+    @staticmethod
     def create_bv(left_child, right_child):
         if isinstance(left_child, Triangle) and isinstance(right_child, Triangle):
-            Amax = max(left_child.y1, left_child.y2, left_child.y3, right_child.y1, right_child.y2, right_child.y3)
-            Amin = min(left_child.y1, left_child.y2, left_child.y3, right_child.y1, right_child.y2, right_child.y3)
-            Bmax = max(left_child.x1, left_child.x2, left_child.x3, right_child.x1, right_child.x2, right_child.x3)
-            Bmin = min(left_child.x1, left_child.x2, left_child.x3, right_child.x1, right_child.x2, right_child.x3)
-            Cmax = max((left_child.y1 - left_child.x1), (left_child.y2 - left_child.x2),
-                       (left_child.y3 - left_child.x3),
-                       (right_child.y1 - right_child.x1), (right_child.y2 - right_child.x2),
-                       (right_child.y3 - right_child.x3))
-            Cmin = min((left_child.y1 - left_child.x1), (left_child.y2 - left_child.x2),
-                       (left_child.y3 - left_child.x3),
-                       (right_child.y1 - right_child.x1), (right_child.y2 - right_child.x2),
-                       (right_child.y3 - right_child.x3))
-            Dmax = max((left_child.y1 + left_child.x1), (left_child.y2 + left_child.x2),
-                       (left_child.y3 + left_child.x3),
-                       (right_child.y1 + right_child.x1), (right_child.y2 + right_child.x2),
-                       (right_child.y3 + right_child.x3))
-            Dmin = min((left_child.y1 + left_child.x1), (left_child.y2 + left_child.x2),
-                       (left_child.y3 + left_child.x3),
-                       (right_child.y1 + right_child.x1), (right_child.y2 + right_child.x2),
-                       (right_child.y3 + right_child.x3))
+            Amin, Amax = BV.get_max_min(
+                [left_child.y1, left_child.y2, left_child.y3, right_child.y1, right_child.y2, right_child.y3])
+            Bmin, Bmax = BV.get_max_min(
+                [left_child.x1, left_child.x2, left_child.x3, right_child.x1, right_child.x2, right_child.x3])
+            Cmin, Cmax = BV.get_max_min([(left_child.y1 - left_child.x1), (left_child.y2 - left_child.x2),
+                                         (left_child.y3 - left_child.x3),
+                                         (right_child.y1 - right_child.x1), (right_child.y2 - right_child.x2),
+                                         (right_child.y3 - right_child.x3)])
+            Dmin, Dmax = BV.get_max_min([(left_child.y1 + left_child.x1), (left_child.y2 + left_child.x2),
+                                         (left_child.y3 + left_child.x3),
+                                         (right_child.y1 + right_child.x1), (right_child.y2 + right_child.x2),
+                                         (right_child.y3 + right_child.x3)])
             return BV(Amin, Amax, Bmin, Bmax, Cmin, Cmax, Dmin, Dmax)
         elif isinstance(left_child, Triangle):
             tri = left_child
@@ -108,9 +112,7 @@ class BV:
             return True
         if second_min <= first_max <= second_max:
             return True
-        if first_min <= second_max <= first_max:
-            return True
-        if first_min <= second_min <= first_max:
+        if first_min <= second_min and first_max >= second_max:
             return True
         return False
 
